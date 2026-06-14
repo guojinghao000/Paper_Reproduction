@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Model outputs
+model_out/
+test_log/
+
+# Pretrained weights
+pretrained_ckpt/
+
+# Datasets (large)
+project_transunet/
+TransUNet_ACDC_code_data/
+data/
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Conda
+.env/
