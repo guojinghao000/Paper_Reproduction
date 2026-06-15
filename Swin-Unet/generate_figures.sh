@@ -20,7 +20,7 @@ fi
 if [ $data_dir ]; then
     DATA_DIR=$data_dir
 else
-    DATA_DIR='project_transunet/project_TransUNet/data/Synapse'
+    DATA_DIR='data/Synapse'
 fi
 
 if [ $img_size ]; then

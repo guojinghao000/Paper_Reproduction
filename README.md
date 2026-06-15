@@ -10,7 +10,7 @@
 
 ```
 .
-├── Swin-Unet/                  # 主项目（代码、模型、实验输出）
+├── Swin-Unet/                  # 代码目录 (code/) — 所有 .py 源文件、配置、脚本
 │   ├── train.py / test.py      # 训练 & 推理入口
 │   ├── trainer.py              # 训练循环
 │   ├── utils.py                # 损失函数 & 评估指标
@@ -20,14 +20,20 @@
 │   ├── configs/                # YAML 配置文件
 │   ├── lists/                  # 数据划分列表
 │   ├── model_out/              # 训练输出（权重、日志、预测、结果图）
-│   ├── manuscript.md           # 课程论文手稿（Markdown）
-│   ├── manuscript.docx / .pdf  # 编译后的论文
+│   ├── manuscript.md           # 课程论文手稿 (Markdown)
+│   ├── manuscript.docx         # 编译后的论文
 │   ├── README.md               # 项目详细文档
 │   └── CLAUDE.md               # Claude Code 指导文件
-├── 数图.pdf                    # 数字图像处理教材
-├── 数图_中文翻译.md             # Swin-Unet 论文中文翻译
-├── 名词解释.md                  # 术语解释（U-Net、Transformer 等）
-├── Fig1.png / Fig2.png / Fig3.png  # 论文插图
+├── manuscript.docx             # 课程论文 (提交版)
+├── 组员信息.xlsx               # 组员信息 (学号、姓名、分工)
+├── 参考资料/                   # 参考材料 (论文原文、翻译、术语、分析)
+│   ├── 原始论文.pdf
+│   ├── 论文中文翻译.md
+│   ├── 名词解释.md
+│   ├── 复现代码解析.md
+│   ├── 论文代码对照解析.md
+│   ├── figures/                # 论文插图
+│   └── README.md
 └── README.md                   # 本文件
 ```
 
@@ -70,7 +76,7 @@ cd Swin-Unet
 sh train.sh
 # 或自定义参数
 python train.py --dataset Synapse --cfg configs/swin_tiny_patch4_window7_224_lite.yaml \
-    --root_path project_transunet/project_TransUNet/data/Synapse \
+    --root_path data/Synapse \
     --max_epochs 150 --output_dir ./model_out/Synapse --img_size 224 \
     --base_lr 0.05 --batch_size 12 --n_class 9 --num_workers 0
 ```
@@ -84,7 +90,7 @@ python plot_training_curves.py      # 绘制训练曲线
 tensorboard --logdir=./model_out/Synapse --port=6006  # 查看训练日志
 ```
 
-更多细节（数据集准备、预训练权重下载、ACDC 数据集训练等）请参阅 [Swin-Unet/README.md](Swin-Unet/README.md)。
+更多细节（数据集准备、预训练权重下载等）请参阅 [Swin-Unet/README.md](Swin-Unet/README.md)。
 
 ## 环境要求
 

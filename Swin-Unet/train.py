@@ -10,7 +10,7 @@ from config import get_config
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--root_path', type=str,
-                    default='../data/Synapse/train_npz', help='root dir for data')
+                    default='data/Synapse/train_npz', help='root dir for data')
 parser.add_argument('--dataset', type=str,
                     default='Synapse', help='experiment_name')
 parser.add_argument('--list_dir', type=str,
@@ -78,19 +78,10 @@ if __name__ == "__main__":
     torch.cuda.manual_seed(args.seed)
 
     dataset_name = args.dataset
-    dataset_config = {
-        args.dataset: {
-            'root_path': args.root_path,
-            'list_dir': f'./lists/{args.dataset}',
-            'num_classes': args.n_class,
-        },
-    }
+    args.num_classes = args.n_class
 
     if args.batch_size != 24 and args.batch_size % 6 == 0:
         args.base_lr *= args.batch_size / 24
-    args.num_classes = dataset_config[dataset_name]['num_classes']
-    args.root_path = dataset_config[dataset_name]['root_path']
-    args.list_dir = dataset_config[dataset_name]['list_dir']
 
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)

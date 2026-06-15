@@ -19,7 +19,7 @@ from utils import test_single_volume
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--root_path', type=str,
-                    default='../data/Synapse/test_vol_h5',
+                    default='data/Synapse/test_vol_h5',
                     help='root dir for validation volume data')  # for acdc volume_path=root_dir
 parser.add_argument('--dataset', type=str,
                     default='datasets', help='experiment_name')
@@ -134,18 +134,8 @@ if __name__ == "__main__":
     torch.cuda.manual_seed(args.seed)
 
     dataset_name = args.dataset
-    dataset_config = {
-        args.dataset: {
-            'root_path': args.volume_path,
-            'list_dir': f'./lists/{args.dataset}',
-            'num_classes': args.n_class,
-            "z_spacing": 1
-        },
-    }
-    args.num_classes = dataset_config[dataset_name]['num_classes']
-    args.volume_path = dataset_config[dataset_name]['root_path']
-    args.list_dir = dataset_config[dataset_name]['list_dir']
-    args.z_spacing = dataset_config[dataset_name]['z_spacing']
+    args.num_classes = args.n_class
+    args.z_spacing = 1
     args.is_pretrain = True
 
     net = ViT_seg(config, img_size=args.img_size, num_classes=args.num_classes).cuda()

@@ -203,7 +203,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--cfg', type=str, required=True)
     parser.add_argument('--root_path', type=str,
-                        default='project_transunet/project_TransUNet/data/Synapse')
+                        default='data/Synapse')
     parser.add_argument('--output_dir', type=str, default='./model_out/Synapse')
     parser.add_argument('--list_dir', type=str, default='./lists/Synapse')
     parser.add_argument('--n_class', type=int, default=9)

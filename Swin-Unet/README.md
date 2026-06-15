@@ -15,10 +15,16 @@ Swin-Unet/
 ├── trainer.py                   # 训练循环 + TensorBoard 日志
 ├── utils.py                     # Dice Loss、测试指标计算
 ├── config.py                    # 配置管理 (yacs)
+├── visualize_results.py         # 论文结果图生成
+├── plot_training_curves.py      # 训练曲线绘制
 ├── make_dataset_txt.py          # 生成数据列表工具
 ├── train.sh / test.sh           # 便捷启动脚本
+├── generate_figures.sh          # 结果图生成脚本
 ├── requirements.txt             # Python 依赖
-├── .gitignore
+├── manuscript.md                # 课程论文手稿 (Markdown)
+├── manuscript.docx              # 编译后的论文
+├── README.md                    # 本文件
+├── CLAUDE.md                    # Claude Code 指导
 ├── configs/
 │   └── swin_tiny_patch4_window7_224_lite.yaml  # 模型配置
 ├── networks/
@@ -33,7 +39,9 @@ Swin-Unet/
 └── model_out/Synapse/           # 训练输出
     ├── best_model.pth           # 最佳模型检查点
     ├── log/                     # 训练 TensorBoard 日志
-    └── log_test/                # 测试 TensorBoard 日志
+    ├── log_test/                # 测试 TensorBoard 日志
+    ├── predictions/             # NIfTI 推理结果
+    └── result_figures/          # 结果图 (逐案例 + 汇总)
 ```
 
 ---
@@ -94,12 +102,13 @@ mv swin_tiny_patch4_window7_224.pth pretrained_ckpt/
 | 数据集 | 类别 | 格式 | 链接 |
 |:-------|:----:|:----:|:-----|
 | Synapse (BTCV) | 9 (8器官+背景) | .npz / .npy.h5 | [Google Drive](https://drive.google.com/drive/folders/1ACJEoTp-uqfFJ73qS3eUObQh52nGuzCd) |
-| ACDC | 4 | .h5 | [Google Drive](https://drive.google.com/drive/folders/1KQcrci7aKsYZi1hQoZ3T3QUtcy7b--n4) |
+
+> 本复现仅使用 Synapse 数据集。ACDC 数据集压缩包保留在 `TransUNet_ACDC_code_data/` 中备查。
 
 ### 数据目录结构 (Synapse)
 
 ```
-project_transunet/project_TransUNet/data/Synapse/
+data/Synapse/
 ├── train_npz/                  # 2211 个训练切片 (.npz)
 │   ├── case0005_slice000.npz
 │   └── ...
@@ -135,7 +144,7 @@ sh train.sh
 python train.py \
     --dataset Synapse \
     --cfg configs/swin_tiny_patch4_window7_224_lite.yaml \
-    --root_path project_transunet/project_TransUNet/data/Synapse \
+    --root_path data/Synapse \
     --max_epochs 150 \
     --output_dir ./model_out/Synapse \
     --img_size 224 \
@@ -192,7 +201,7 @@ python test.py \
     --dataset Synapse \
     --cfg configs/swin_tiny_patch4_window7_224_lite.yaml \
     --is_savenii \
-    --root_path project_transunet/project_TransUNet/data/Synapse \
+    --root_path data/Synapse \
     --output_dir ./model_out/Synapse \
     --list_dir ./lists/Synapse \
     --n_class 9 \
@@ -229,24 +238,7 @@ python test.py \
 
 ## 7. 其他数据集
 
-### ACDC (心脏分割, 4类)
-
-```bash
-# 训练
-python train.py --dataset Synapse \
-    --cfg configs/swin_tiny_patch4_window7_224_lite.yaml \
-    --root_path TransUNet_ACDC_code_data/ACDC \
-    --max_epochs 150 --output_dir ./model_out/ACDC \
-    --img_size 224 --base_lr 0.05 --batch_size 12 \
-    --n_class 4 --list_dir ./lists/ACDC
-
-# 测试 (类似)
-python test.py --dataset Synapse \
-    --cfg configs/swin_tiny_patch4_window7_224_lite.yaml \
-    --root_path TransUNet_ACDC_code_data/ACDC \
-    --output_dir ./model_out/ACDC \
-    --n_class 4 --img_size 224 --split_name test
-```
+> 本复现仅使用 Synapse 数据集。ACDC 数据集原始压缩包保留在 `TransUNet_ACDC_code_data/` 中备查，不做实际训练使用。
 
 ### 自定义数据集
 
