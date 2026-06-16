@@ -49,7 +49,7 @@ echo "  Data:        $DATA_DIR"
 echo "  Output:      $OUT_DIR/result_figures/"
 echo "  Class num:   $N_CLASS"
 echo "  Slices/case: $NUM_SLICES"
-echo "  预计耗时:    ~80 分钟 (12个测试体)"
+echo "  预计耗时:    ~15 分钟 (12个测试体, 批量推理)"
 echo "============================================"
 echo ""
 

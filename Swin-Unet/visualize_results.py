@@ -63,34 +63,43 @@ def make_overlay(image_2d, mask_2d, alpha=0.4):
     return blended
 
 
-def infer_volume(image, label, model, patch_size, num_classes):
-    """Modified from test_single_volume: returns prediction array + metric list."""
+def infer_volume(image, label, model, patch_size, num_classes, batch_size=48):
+    """Batched inference: stack all slices → batch forward → unstack. 5-10× faster."""
+    from scipy.ndimage import zoom
+    from utils import calculate_metric_percase
+
     image = image.squeeze(0).cpu().detach().numpy()
     label = label.squeeze(0).cpu().detach().numpy()
     if image.shape[0] == 1:
         image, label = image.squeeze(0), label.squeeze(0)
 
     if len(image.shape) == 3:
-        prediction = np.zeros_like(label)
-        for ind in range(image.shape[0]):
-            slc = image[ind, :, :]
-            x, y = slc.shape[0], slc.shape[1]
-            in_ = slc
-            if x != patch_size[0] or y != patch_size[1]:
-                from scipy.ndimage import zoom
-                in_ = zoom(slc, (patch_size[0] / x, patch_size[1] / y), order=3)
-            inp = torch.from_numpy(in_).unsqueeze(0).unsqueeze(0).float().cuda()
-            model.eval()
-            with torch.no_grad():
-                out = model(inp)
-                out = torch.argmax(torch.softmax(out, dim=1), dim=1).squeeze(0)
-                out = out.cpu().detach().numpy()
-                if x != patch_size[0] or y != patch_size[1]:
-                    from scipy.ndimage import zoom
-                    pred = zoom(out, (x / patch_size[0], y / patch_size[1]), order=0)
-                else:
-                    pred = out
-                prediction[ind] = pred
+        D, H, W = image.shape
+        needs_resize = (H != patch_size[0] or W != patch_size[1])
+
+        if needs_resize:
+            slices_resized = np.zeros((D, patch_size[0], patch_size[1]), dtype=np.float32)
+            for i in range(D):
+                slices_resized[i] = zoom(image[i], (patch_size[0] / H, patch_size[1] / W), order=3)
+        else:
+            slices_resized = image.astype(np.float32)
+
+        pred_small = np.zeros((D, patch_size[0], patch_size[1]), dtype=label.dtype)
+        model.eval()
+        with torch.no_grad():
+            for start in range(0, D, batch_size):
+                end = min(start + batch_size, D)
+                batch = torch.from_numpy(slices_resized[start:end]).unsqueeze(1).float().cuda()
+                out = model(batch)
+                out = torch.argmax(torch.softmax(out, dim=1), dim=1)
+                pred_small[start:end] = out.cpu().numpy()
+
+        if needs_resize:
+            prediction = np.zeros_like(label)
+            for i in range(D):
+                prediction[i] = zoom(pred_small[i], (H / patch_size[0], W / patch_size[1]), order=0)
+        else:
+            prediction = pred_small
     else:
         inp = torch.from_numpy(image).unsqueeze(0).unsqueeze(0).float().cuda()
         model.eval()
@@ -98,7 +107,6 @@ def infer_volume(image, label, model, patch_size, num_classes):
             out = torch.argmax(torch.softmax(model(inp), dim=1), dim=1).squeeze(0)
             prediction = out.cpu().detach().numpy()
 
-    from utils import calculate_metric_percase
     metric_list = []
     for i in range(1, num_classes):
         metric_list.append(calculate_metric_percase(prediction == i, label == i))

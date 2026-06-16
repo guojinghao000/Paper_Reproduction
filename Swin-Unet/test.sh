@@ -26,6 +26,6 @@ fi
 echo "start test model"
 python test.py --dataset Synapse \
     --cfg $CFG --root_path $DATA_DIR \
-    --is_savenii --output_dir $OUT_DIR \
+    --output_dir $OUT_DIR \
     --img_size $IMG_SIZE --n_class 9 \
     --list_dir ./lists/Synapse --split_name test_vol

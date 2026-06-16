@@ -19,22 +19,25 @@
 │   ├── datasets/               # 数据加载器
 │   ├── configs/                # YAML 配置文件
 │   ├── lists/                  # 数据划分列表
-│   ├── model_out/              # 训练输出（权重、日志、预测、结果图）
+│   ├── model_out/              # 训练输出（权重、日志、结果图）
 │   ├── manuscript.md           # 课程论文手稿 (Markdown)
 │   ├── manuscript.docx         # 编译后的论文
 │   ├── README.md               # 项目详细文档
 │   └── CLAUDE.md               # Claude Code 指导文件
 ├── manuscript.docx             # 课程论文 (提交版)
 ├── 组员信息.xlsx               # 组员信息 (学号、姓名、分工)
-├── 参考资料/                   # 参考材料 (论文原文、翻译、术语、分析)
+├── compare_training.py          # 训练曲线对比脚本（辅助工具）
+├── compare_results.py           # 数值结果对比脚本（辅助工具）
+├── compare_test_results.py      # 测试结果柱状图脚本（辅助工具）
+├── 参考资料/                    # 参考材料 (论文原文、翻译、术语、分析)
 │   ├── 原始论文.pdf
 │   ├── 论文中文翻译.md
 │   ├── 名词解释.md
 │   ├── 复现代码解析.md
 │   ├── 论文代码对照解析.md
-│   ├── figures/                # 论文插图
+│   ├── figures/                 # 论文插图
 │   └── README.md
-└── README.md                   # 本文件
+└── README.md                    # 本文件
 ```
 
 ## 论文简介
@@ -84,7 +87,7 @@ python train.py --dataset Synapse --cfg configs/swin_tiny_patch4_window7_224_lit
 ### 测试 & 生成结果图
 
 ```bash
-sh test.sh                          # 推理并保存 NIfTI 预测
+sh test.sh                          # 推理并计算测试指标
 sh generate_figures.sh              # 生成论文结果图
 python plot_training_curves.py      # 绘制训练曲线
 tensorboard --logdir=./model_out/Synapse --port=6006  # 查看训练日志

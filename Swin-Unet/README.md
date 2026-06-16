@@ -40,7 +40,6 @@ Swin-Unet/
     ├── best_model.pth           # 最佳模型检查点
     ├── log/                     # 训练 TensorBoard 日志
     ├── log_test/                # 测试 TensorBoard 日志
-    ├── predictions/             # NIfTI 推理结果
     └── result_figures/          # 结果图 (逐案例 + 汇总)
 ```
 
@@ -119,13 +118,13 @@ data/Synapse/
 
 ### 数据列表
 
-`lists/Synapse/` 目录包含训练/测试分割文件：
+`lists/Synapse/` 目录包含数据划分文件（遵循原论文：18 例训练，12 例测试）：
 
 ```
 lists/Synapse/
-├── train.txt                   # 训练样本列表
-├── val.txt                     # 验证样本列表
-└── test_vol.txt                # 测试体数据列表
+├── train.txt                   # 训练样本列表 (18 cases, 2211 slices)
+├── val.txt                     # 与 train.txt 相同，仅用于训练进度监控
+└── test_vol.txt                # 测试体数据列表 (12 cases)
 ```
 
 ---
@@ -200,7 +199,6 @@ sh test.sh
 python test.py \
     --dataset Synapse \
     --cfg configs/swin_tiny_patch4_window7_224_lite.yaml \
-    --is_savenii \
     --root_path data/Synapse \
     --output_dir ./model_out/Synapse \
     --list_dir ./lists/Synapse \

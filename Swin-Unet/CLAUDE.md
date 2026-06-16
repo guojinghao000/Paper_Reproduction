@@ -23,7 +23,7 @@ python train.py --dataset Synapse --cfg configs/swin_tiny_patch4_window7_224_lit
 
 # Test (uses best_model.pth from output_dir)
 python test.py --dataset Synapse --cfg configs/swin_tiny_patch4_window7_224_lite.yaml \
-    --is_savenii --root_path project_transunet/project_TransUNet/data/Synapse \
+    --root_path data/Synapse \
     --output_dir ./model_out/Synapse --list_dir ./lists/Synapse \
     --n_class 9 --img_size 224 --split_name test_vol
 
@@ -51,7 +51,7 @@ tensorboard --logdir=./model_out/Synapse --port=6006
 - Loss: `0.4 * CrossEntropyLoss + 0.6 * DiceLoss`
 - LR schedule: polynomial decay `base_lr * (1 - iter/max_iter) ** 0.9`
 - LR scales linearly with batch_size when `batch_size % 6 == 0`
-- Train/val split: val_loader uses `db_val` (separate validation list from `lists/Synapse/val.txt`)
+- Train/val split: val_loader uses `db_train` (same as training data, per paper — Synapse has no dedicated validation set; 18 cases all for training)
 
 **Data** (`datasets/dataset_synapse.py`):
 - Training: `.npz` files with `image`/`label` keys; `RandomGenerator` does rot/flip/zoom → 224×224
@@ -68,7 +68,7 @@ tensorboard --logdir=./model_out/Synapse --port=6006
 2. **`test.py` bug**: `args.volume_path` referenced before assignment → fixed to use `args.root_path`
 3. **`test.py` path separator**: `.split('/')[-1]` fails on Windows → fixed to `os.path.basename()`
 4. **`utils.py` squeeze bug**: double `.squeeze(0)` fails on 3D volumes → conditional squeeze
-5. **val_loader data leak**: `trainer.py:42` used `db_train` for validation → fixed to use `db_val` (separate validation split)
+5. **val loader by design**: Original paper uses all 18 Synapse cases for training, no validation split. `val_loader = DataLoader(db_train, ...)` is intentional — a training-progress monitor, not a real validation. This matches the paper's setup.
 6. **list_dir override**: `dataset_config` hardcoded `./lists/{dataset}` ignoring CLI `--list_dir` → removed `dataset_config` dicts in `train.py` and `test.py`, CLI args now take effect directly
 7. **optimizer/config mismatch**: `config.py` defaults to AdamW/cosine LR but `trainer.py` hardcodes SGD/polynomial LR — actual training uses SGD (matches paper), but config is misleading
 
@@ -91,7 +91,7 @@ Example: `out_dir=./model_out/ACDC n_class=4 sh test.sh`
 python plot_training_curves.py --logdir ./model_out/Synapse/log
 
 # Generate paper-style figures (per-case overlays, summary bar chart, CSV)
-# ~80 minutes for 12 test volumes; requires best_model.pth to exist
+# ~15 minutes for 12 test volumes with batched inference; requires best_model.pth to exist
 sh generate_figures.sh
 # Or directly:
 python visualize_results.py \
@@ -122,18 +122,17 @@ python make_dataset_txt.py --data .npz --name my_dataset
 
 ```
 model_out/Synapse/
-├── best_model.pth              # Best checkpoint (lowest val loss)
+├── best_model.pth              # Best checkpoint
 ├── last_model.pth              # Final epoch checkpoint
 ├── log.txt                     # Full training log
 ├── log/                        # TensorBoard training events
 ├── log_test/                   # TensorBoard test events
-├── predictions/                # NIfTI output (img, gt, pred .nii.gz per case)
-└── result_figures/             # Paper figures (see Visualization section)
-    ├── case00XX.png            # Per-case segmentation comparison
-    ├── summary.png             # Per-class Dice/HD95 bar charts
-    ├── results.csv             # Raw metrics
-    └── training_curves.png     # Loss curves from plot_training_curves.py
+└── result_figures/             # Paper figures (per-case images, summary, CSV, training curves)
 ```
+
+Archived experiments:
+- `model_out/Synapse/` — 150 epochs, 18 cases, paper-consistent results (DSC 0.761)
+- `model_out/Synapse_300ep_valsplit.zip` — 300 epochs, 15/3 split exploratory experiment (DSC 0.769), archived for reference
 
 ## Data Locations
 
